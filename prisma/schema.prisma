@@ -1,0 +1,130 @@
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  name      String
+  email     String   @unique
+  password  String
+  role      String   // admin, munshi, viewer
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Customer {
+  id             Int       @id @default(autoincrement())
+  name           String
+  phone          String
+  altPhone       String?
+  cnic           String?
+  address        String?
+  siteLocation   String?
+  customerType   String    @default("individual")
+  paymentTerms   Int?      @default(0) // days
+  creditLimit    Float?
+  notes          String?
+  isActive       Boolean   @default(true)
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  dispatches     SaleDispatch[]
+  payments       Payment[]
+}
+
+model BrickGrade {
+  id             Int             @id @default(autoincrement())
+  nameEn         String
+  nameLocal      String
+  code           String
+  defaultRate    Float?
+  trackStock     Boolean         @default(true)
+  isWastage      Boolean         @default(false)
+
+  stockLedger    StockLedger[]
+  dispatchItems  SaleDispatchItem[]
+}
+
+model StockLedger {
+  id              Int        @id @default(autoincrement())
+  date            DateTime   @default(now())
+  gradeId         Int
+  transactionType String     // opening, production, dispatch, return, wastage, manual
+  quantity        Int
+  referenceType   String?    // dispatch, batch, adjustment
+  referenceId     Int?
+  notes           String?
+  createdAt       DateTime   @default(now())
+
+  grade           BrickGrade @relation(fields: [gradeId], references: [id])
+}
+
+model SaleDispatch {
+  id              Int       @id @default(autoincrement())
+  dispatchDate    DateTime  @default(now())
+  customerId      Int
+  challanNo       String?
+  siteLocation    String?
+  vehicleType     String?
+  vehicleNo       String?
+  driverName      String?
+  subtotal        Float
+  transportCost   Float     @default(0)
+  loadingCost     Float     @default(0)
+  discount        Float     @default(0)
+  totalAmount     Float
+  paymentType     String    // cash, credit, partial, online
+  amountReceived  Float     @default(0)
+  balanceDue      Float     @default(0)
+  dueDate         DateTime?
+  status          String    @default("open") // open, paid, partial
+  notes           String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  customer        Customer  @relation(fields: [customerId], references: [id])
+  items           SaleDispatchItem[]
+  allocations     PaymentAllocation[]
+}
+
+model SaleDispatchItem {
+  id              Int          @id @default(autoincrement())
+  dispatchId      Int
+  gradeId         Int
+  quantity        Int
+  unit            String       @default("pieces") // pieces, thousand
+  rate            Float
+  amount          Float
+
+  dispatch        SaleDispatch @relation(fields: [dispatchId], references: [id])
+  grade           BrickGrade   @relation(fields: [gradeId], references: [id])
+}
+
+model Payment {
+  id              Int       @id @default(autoincrement())
+  date            DateTime  @default(now())
+  customerId      Int
+  amount          Float
+  method          String    // cash, online, etc
+  reference       String?
+  notes           String?
+  createdAt       DateTime  @default(now())
+
+  customer        Customer  @relation(fields: [customerId], references: [id])
+  allocations     PaymentAllocation[]
+}
+
+model PaymentAllocation {
+  id              Int          @id @default(autoincrement())
+  paymentId       Int
+  dispatchId      Int
+  amount          Float
+
+  payment         Payment      @relation(fields: [paymentId], references: [id])
+  dispatch        SaleDispatch @relation(fields: [dispatchId], references: [id])
+}

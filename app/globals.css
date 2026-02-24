@@ -1,0 +1,24 @@
+@import "tailwindcss";
+@config "../tailwind.config.ts";
+
+/*
+  Tailwind v4 theme extensions.
+  We are using tailwind.config.ts via @config directive above.
+*/
+@theme {
+  --font-sans: "Plus Jakarta Sans", sans-serif;
+  --font-display: "Plus Jakarta Sans", sans-serif;
+
+  --color-primary: #ec4913;
+  --color-background-light: #f8f6f6;
+  --color-background-dark: #221510;
+
+  --radius-lg: 0.5rem;
+  --radius-xl: 0.75rem;
+}
+
+@layer base {
+  body {
+    @apply bg-background-light text-slate-900 dark:bg-background-dark dark:text-slate-100 font-display;
+  }
+}
