@@ -77,10 +77,16 @@ export default function CustomerLedger() {
          </p>
 
          <div className="flex w-full gap-3 max-w-sm">
-           <Button className="flex-1 bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-slate-100 border-none hover:bg-slate-200 dark:hover:bg-slate-700">
+           <Button className="flex-1 bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-slate-100 border-none hover:bg-slate-200 dark:hover:bg-slate-700" onClick={() => window.location.href = `tel:${customer.phone}`}>
              <Phone className="w-4 h-4 mr-2" /> Call / کال
            </Button>
-           <Button className="flex-1 bg-[#25D366] hover:bg-[#128C7E] text-white border-none shadow-lg shadow-green-500/20">
+           <Button
+             className="flex-1 bg-[#25D366] hover:bg-[#128C7E] text-white border-none shadow-lg shadow-green-500/20"
+             onClick={() => {
+               const phone = customer.phone.replace(/^0/, '92').replace(/\D/g, '')
+               window.open(`https://wa.me/${phone}`, '_blank')
+             }}
+           >
              <MessageSquare className="w-4 h-4 mr-2" /> WhatsApp
            </Button>
          </div>
